@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  MemeEditorViewController.swift
 //  Mememe 1.0
 //
 //  Created by Feng Zhu on 3/23/16.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate {
+class MemeEditorViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate {
 
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var cameraButton: UIBarButtonItem!
@@ -29,8 +29,9 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
     
     func keyboardWillShow(notification: NSNotification) {
-        view.frame.origin.y = 0
-        view.frame.origin.y -= getKeyboardHeight(notification)
+        if textBottom.isFirstResponder() {
+            view.frame.origin.y -= getKeyboardHeight(notification)
+        }
     }
     
     func keyboardWillHide(notification: NSNotification) {
@@ -66,14 +67,6 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         super.viewDidLoad()
     }
     
-    @IBAction func editTextTopBegin(sender: AnyObject) {
-        initTextField(textTop, initText: "")
-    }
-    
-    @IBAction func editTextBottomBegin(sender: AnyObject) {
-        initTextField(textBottom, initText: "")
-    }
-    
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
         unsubscribeFromKeyboardNotifications()
@@ -97,6 +90,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
         textField.defaultTextAttributes = memeTextAttributes
         textField.textAlignment = .Center
+        textField.clearsOnBeginEditing = true
     }
     
     
@@ -106,19 +100,19 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
     
 
-
-    @IBAction func pickAnImageFromAlbum(sender: AnyObject) {
+    func pickAnImage(sourceType: UIImagePickerControllerSourceType) {
         let imagePicker = UIImagePickerController()
         imagePicker.delegate = self
-        imagePicker.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
+        imagePicker.sourceType = sourceType
         self.presentViewController(imagePicker, animated: true, completion: nil)
+    }
+
+    @IBAction func pickAnImageFromAlbum(sender: AnyObject) {
+        pickAnImage(UIImagePickerControllerSourceType.PhotoLibrary)
     }
     
     @IBAction func pickAnImageFromCamera (sender: AnyObject) {
-        let imagePicker = UIImagePickerController()
-        imagePicker.delegate = self
-        imagePicker.sourceType = UIImagePickerControllerSourceType.Camera
-        self.presentViewController(imagePicker, animated: true, completion: nil)
+        pickAnImage(UIImagePickerControllerSourceType.Camera)
     }
 
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
@@ -146,9 +140,13 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         return memedImage
     }
     
+    func save(memedImage: UIImage) {
+        let meme = Meme(topText: textTop.text!, bottomText: textBottom.text!, originalImg: imageView.image, memedImg: memedImage)
+    }
+    
     @IBAction func shareButtonClicked(sender: AnyObject) {
         let memedImage = generateMemedImage()
-        let meme = Meme(topText: textTop.text!, bottomText: textBottom.text!, originalImg: imageView.image, memedImg: memedImage)
+        save(memedImage)
         
         let shareViewController = UIActivityViewController(activityItems: [memedImage], applicationActivities: nil)
 
