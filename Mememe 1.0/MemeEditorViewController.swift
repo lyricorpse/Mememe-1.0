@@ -91,9 +91,12 @@ class MemeEditorViewController: UIViewController, UIImagePickerControllerDelegat
         
         textField.defaultTextAttributes = memeTextAttributes
         textField.textAlignment = .Center
-        textField.clearsOnBeginEditing = true
+//        textField.clearsOnBeginEditing = true
     }
     
+    func textFieldDidBeginEditing(textField: UITextField) {
+        textField.text = ""
+    }
     
     func textFieldShouldReturn(textField: UITextField) -> Bool {
         textField.resignFirstResponder()
