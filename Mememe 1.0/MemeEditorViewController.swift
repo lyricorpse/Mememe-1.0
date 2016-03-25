@@ -30,13 +30,14 @@ class MemeEditorViewController: UIViewController, UIImagePickerControllerDelegat
     
     func keyboardWillShow(notification: NSNotification) {
         if textBottom.isFirstResponder() {
-            view.frame.origin.y = 0
-            view.frame.origin.y -= getKeyboardHeight(notification)
+            view.frame.origin.y = -getKeyboardHeight(notification)
         }
     }
     
     func keyboardWillHide(notification: NSNotification) {
-        view.frame.origin.y = 0
+        if textBottom.isFirstResponder() {
+            view.frame.origin.y = 0
+        }
     }
     
     func getKeyboardHeight(notification: NSNotification) -> CGFloat {
@@ -91,7 +92,6 @@ class MemeEditorViewController: UIViewController, UIImagePickerControllerDelegat
         
         textField.defaultTextAttributes = memeTextAttributes
         textField.textAlignment = .Center
-//        textField.clearsOnBeginEditing = true
     }
     
     func textFieldDidBeginEditing(textField: UITextField) {
@@ -150,7 +150,6 @@ class MemeEditorViewController: UIViewController, UIImagePickerControllerDelegat
     
     @IBAction func shareButtonClicked(sender: AnyObject) {
         let memedImage = generateMemedImage()
-        save(memedImage)
         
         let shareViewController = UIActivityViewController(activityItems: [memedImage], applicationActivities: nil)
 
@@ -158,6 +157,7 @@ class MemeEditorViewController: UIViewController, UIImagePickerControllerDelegat
         shareViewController.completionWithItemsHandler = { (activityType: String?, completed: Bool, returnedItems: [AnyObject]?, activityError: NSError?) in
             if completed {
                 shareViewController.dismissViewControllerAnimated(true, completion: nil)
+                self.save(memedImage)
             }
         }
     }
